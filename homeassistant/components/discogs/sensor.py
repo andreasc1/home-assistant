@@ -130,7 +130,7 @@ def setup_platform(
             "collection_value_min": collection_value["minimum"],
             "collection_value_median": collection_value["median"],
             "collection_value_max": collection_value["maximum"],
-            "currency_symbol": currency_symbol, # Store the detected currency symbol
+            "currency_symbol": currency_symbol,  # Store the detected currency symbol
         }
     except discogs_client.exceptions.HTTPError as err:
         _LOGGER.error("API token is not valid or Discogs API error: %s", err)
@@ -167,7 +167,9 @@ class DiscogsSensor(SensorEntity):
             SENSOR_COLLECTION_VALUE_MEDIAN_TYPE,
             SENSOR_COLLECTION_VALUE_MAX_TYPE,
         ]:
-            self._attr_native_unit_of_measurement = self._discogs_data["currency_symbol"]
+            self._attr_native_unit_of_measurement = self._discogs_data[
+                "currency_symbol"
+            ]
 
     @property
     def extra_state_attributes(self):
@@ -175,10 +177,7 @@ class DiscogsSensor(SensorEntity):
         if self._attr_native_value is None:
             return None
 
-        if (
-            self.entity_description.key == SENSOR_RANDOM_RECORD_TYPE
-            and self._attrs
-        ):
+        if self.entity_description.key == SENSOR_RANDOM_RECORD_TYPE and self._attrs:
             return {
                 "cat_no": self._attrs["labels"][0]["catno"],
                 "cover_image": self._attrs["cover_image"],
@@ -217,17 +216,38 @@ class DiscogsSensor(SensorEntity):
             # Remove the detected currency symbol and convert to float
             value_str = self._discogs_data["collection_value_min"]
             # Find the index of the first digit to split the symbol from the number
-            first_digit_index = next((i for i, char in enumerate(value_str) if char.isdigit() or char == '.'), 0)
+            first_digit_index = next(
+                (
+                    i
+                    for i, char in enumerate(value_str)
+                    if char.isdigit() or char == "."
+                ),
+                0,
+            )
             numeric_value_str = value_str[first_digit_index:]
             self._attr_native_value = float(numeric_value_str)
         elif self.entity_description.key == SENSOR_COLLECTION_VALUE_MEDIAN_TYPE:
             value_str = self._discogs_data["collection_value_median"]
-            first_digit_index = next((i for i, char in enumerate(value_str) if char.isdigit() or char == '.'), 0)
+            first_digit_index = next(
+                (
+                    i
+                    for i, char in enumerate(value_str)
+                    if char.isdigit() or char == "."
+                ),
+                0,
+            )
             numeric_value_str = value_str[first_digit_index:]
             self._attr_native_value = float(numeric_value_str)
         elif self.entity_description.key == SENSOR_COLLECTION_VALUE_MAX_TYPE:
             value_str = self._discogs_data["collection_value_max"]
-            first_digit_index = next((i for i, char in enumerate(value_str) if char.isdigit() or char == '.'), 0)
+            first_digit_index = next(
+                (
+                    i
+                    for i, char in enumerate(value_str)
+                    if char.isdigit() or char == "."
+                ),
+                0,
+            )
             numeric_value_str = value_str[first_digit_index:]
             self._attr_native_value = float(numeric_value_str)
         else:
